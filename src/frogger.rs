@@ -345,30 +345,69 @@ impl Actor for Frog
         }
 
         // Check win, from left slot to right slot.
-        if !self.wins[0] && self.pos.x + (self.size.x / 2) > 48 && self.pos.x + (self.size.x / 2) < 80 && self.pos.y + (self.size.y / 2) > 58 && self.pos.y + (self.size.y / 2) < 80
+        if self.pos.x + (self.size.x / 2) > 48 && self.pos.x + (self.size.x / 2) < 80 && self.pos.y + (self.size.y / 2) > 58 && self.pos.y + (self.size.y / 2) < 80
         {
-            self.wins[0] = true;
-            self.reset_position();
+            if !self.wins[0]
+            {
+                self.wins[0] = true;
+                self.reset_position();
+            }
+            else 
+            {
+                self.lose_life();    
+            }
         }
-        else if !self.wins[1] && self.pos.x + (self.size.x / 2) > 176 && self.pos.x + (self.size.x / 2) < 208 && self.pos.y + (self.size.y / 2) > 58 && self.pos.y + (self.size.y / 2) < 80
+        else if self.pos.x + (self.size.x / 2) > 176 && self.pos.x + (self.size.x / 2) < 208 && self.pos.y + (self.size.y / 2) > 58 && self.pos.y + (self.size.y / 2) < 80
         {
-            self.wins[1] = true;
-            self.reset_position();
+            if !self.wins[1]
+            {
+                self.wins[1] = true;
+                self.reset_position();
+            }
+            else 
+            {
+                self.lose_life();    
+            }
         }
-        else if !self.wins[2] && self.pos.x + (self.size.x / 2) > 304 && self.pos.x + (self.size.x / 2) < 336 && self.pos.y + (self.size.y / 2) > 58 && self.pos.y + (self.size.y / 2) < 80
+        else if self.pos.x + (self.size.x / 2) > 304 && self.pos.x + (self.size.x / 2) < 336 && self.pos.y + (self.size.y / 2) > 58 && self.pos.y + (self.size.y / 2) < 80
         {
-            self.wins[2] = true;
-            self.reset_position();
+            if !self.wins[2]
+            {
+                self.wins[2] = true;
+                self.reset_position();
+            }
+            else 
+            {
+                self.lose_life();    
+            }
         }
-        else if !self.wins[3] && self.pos.x + (self.size.x / 2) > 432 && self.pos.x + (self.size.x / 2) < 464 && self.pos.y + (self.size.y / 2) > 58 && self.pos.y + (self.size.y / 2) < 80
+        else if self.pos.x + (self.size.x / 2) > 432 && self.pos.x + (self.size.x / 2) < 464 && self.pos.y + (self.size.y / 2) > 58 && self.pos.y + (self.size.y / 2) < 80
         {
-            self.wins[3] = true;
-            self.reset_position();
+            if !self.wins[3]
+            {
+                self.wins[3] = true;
+                self.reset_position();
+            }
+            else 
+            {
+                self.lose_life();    
+            }
         }
-        else if !self.wins[4] && self.pos.x + (self.size.x / 2) > 560 && self.pos.x + (self.size.x / 2) < 592 && self.pos.y + (self.size.y / 2) > 58 && self.pos.y + (self.size.y / 2) < 80
+        else if self.pos.x + (self.size.x / 2) > 560 && self.pos.x + (self.size.x / 2) < 592 && self.pos.y + (self.size.y / 2) > 58 && self.pos.y + (self.size.y / 2) < 80
         {
-            self.wins[4] = true;
-            self.reset_position();
+            if !self.wins[4]
+            {
+                self.wins[4] = true;
+                self.reset_position();
+            }
+            else 
+            {
+                self.lose_life();    
+            }
+        }
+        else if self.pos.y + (self.size.y / 2) < 80
+        {
+            self.lose_life();
         }
 
         if current_keys.contains(&"ArrowUp") && !previous_keys.contains(&"ArrowUp")
