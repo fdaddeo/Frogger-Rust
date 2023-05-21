@@ -248,7 +248,9 @@ pub struct Frog
     lives: i32,
     blinking: i32,
     in_water: bool,
-    wins: Vec<bool>
+    wins: Vec<bool>,
+    win_sprite: Pt,
+    win_sprite_size: Pt
 }
 impl Frog
 {
@@ -271,12 +273,14 @@ impl Frog
                lives: 3,
                blinking: 0,
                in_water: false,
-               wins: wins }
+               wins: wins,
+               win_sprite: pt(68, 134),
+               win_sprite_size: pt(24, 18) }
     }
 
     pub fn get_wins(&self) -> &Vec<bool> { &self.wins }
-    pub fn get_starting_sprite(&self) -> Pt { self.starting_sprite }
-    pub fn get_starting_size(&self) -> Pt { self.starting_size }
+    pub fn get_win_sprite(&self) -> Pt { self.win_sprite }
+    pub fn get_win_sprite_size(&self) -> Pt { self.win_sprite_size }
 
     fn reset_position(&mut self)
     {

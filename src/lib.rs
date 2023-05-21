@@ -44,11 +44,11 @@ impl FroggerGui
                 iter.fold(0, 
                           |idx, val| if *val == true
                                                     {
-                                                        if idx == 0 { g2d::draw_image_clip("frogger.png".to_string(), pt2d::pt(52, 54), hero.get_starting_sprite(), hero.get_starting_size()); }
-                                                        if idx == 1 { g2d::draw_image_clip("frogger.png".to_string(), pt2d::pt(180, 54), hero.get_starting_sprite(), hero.get_starting_size()); }
-                                                        if idx == 2 { g2d::draw_image_clip("frogger.png".to_string(), pt2d::pt(308, 54), hero.get_starting_sprite(), hero.get_starting_size()); }
-                                                        if idx == 3 { g2d::draw_image_clip("frogger.png".to_string(), pt2d::pt(436, 54), hero.get_starting_sprite(), hero.get_starting_size()); }
-                                                        if idx == 4 { g2d::draw_image_clip("frogger.png".to_string(), pt2d::pt(564, 54), hero.get_starting_sprite(), hero.get_starting_size()); }
+                                                        if idx == 0 { g2d::draw_image_clip("frogger.png".to_string(), pt2d::pt(52, 54), hero.get_win_sprite(), hero.get_win_sprite_size()); }
+                                                        if idx == 1 { g2d::draw_image_clip("frogger.png".to_string(), pt2d::pt(180, 54), hero.get_win_sprite(), hero.get_win_sprite_size()); }
+                                                        if idx == 2 { g2d::draw_image_clip("frogger.png".to_string(), pt2d::pt(308, 54), hero.get_win_sprite(), hero.get_win_sprite_size()); }
+                                                        if idx == 3 { g2d::draw_image_clip("frogger.png".to_string(), pt2d::pt(436, 54), hero.get_win_sprite(), hero.get_win_sprite_size()); }
+                                                        if idx == 4 { g2d::draw_image_clip("frogger.png".to_string(), pt2d::pt(564, 54), hero.get_win_sprite(), hero.get_win_sprite_size()); }
                                                         idx + 1
                                                     }
                                                     else { idx + 1 }
