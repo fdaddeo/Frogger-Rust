@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::cmp::{min, max};
-use std::ops::Add;
+use std::ops::{Add, Sub};
 
 use crate::actor::*;
 use crate::rand::*;
@@ -166,6 +166,53 @@ impl Actor for Turtle
     fn as_any(&self) -> &dyn Any { self }
 }
 
+pub struct Crocodile
+{
+    pos: Pt,
+    sprite: Pt,
+    size: Pt,
+    speed: i32,
+    counter: i32
+}
+impl Crocodile 
+{
+    pub fn new(pos: Pt, speed: i32) -> Crocodile
+    { 
+        Crocodile { pos: pos, sprite: pt(128, 189), size: pt(94, 32), speed: speed, counter: 0 }
+    }    
+}
+impl Actor for Crocodile 
+{
+    fn act(&mut self, arena: &mut ArenaStatus)
+    { 
+        let scr = arena.size();
+
+        self.pos.x = self.pos.x + self.speed;
+
+        if self.counter < 10  // Mouth close
+        {
+            self.sprite = pt(128, 189);
+            self.size = pt(94, 32);
+        }
+        else  // Mouth open
+        {
+            self.sprite = pt(192, 224);
+            self.size = pt(94, 32);
+        }
+
+        self.counter = (self.counter + 1) % 20;
+
+        self.pos.x = if self.pos.x > scr.x + 96 && self.speed > 0 { - 96 } else { self.pos.x };
+        self.pos.x = if self.pos.x < - 96 && self.speed < 0 { scr.x } else { self.pos.x };
+    }
+
+    fn pos(&self) -> Pt { self.pos }
+    fn size(&self) -> Pt { self.size }
+    fn sprite(&self) -> Option<Pt> { Some(self.sprite) }
+    fn alive(&self) -> bool { true }
+    fn as_any(&self) -> &dyn Any { self }
+}
+
 pub struct Water
 {
     pos: Pt,
@@ -274,6 +321,10 @@ impl Actor for Frog
                 {
                     self.in_water = false;
                     self.step.x = raft.speed;
+                }
+                else if let Some(_) = other.as_any().downcast_ref::<Crocodile>()
+                {
+                    self.lose_life();
                 }
                 else if let Some(turtle) = other.as_any().downcast_ref::<Turtle>()
                 {
@@ -404,13 +455,17 @@ impl FroggerGame
             let fourth_row_raft = Raft::new(pt(i * 200 + randint(0, 150), 183), -2);            
             let fifth_row_raft = Raft::new(pt(i * 200 + randint(0, 150), 215), 2);
 
-            // compute the turtle offset w.r.t. the prior raft.
+            // compute the turtle and crocodile offsets w.r.t. the relative prior raft.
             let turtle_offset = pt(second_row_raft.size.x + 50, 0);
+            let crocodile_offset = pt(fifth_row_raft.size.x + 50, 10);
 
             let second_row_turtle = Turtle::new(second_row_raft.pos.add(turtle_offset), -2);
             let fourth_row_turtle = Turtle::new(fourth_row_raft.pos.add(turtle_offset), -2);
 
+            let first_row_crocodile = Crocodile::new(first_row_raft.pos.sub(crocodile_offset), 2);
+
             arena.spawn(Box::new(first_row_raft));  // First row
+            arena.spawn(Box::new(first_row_crocodile)); // First row
             arena.spawn(Box::new(second_row_raft));  // Second row
             arena.spawn(Box::new(second_row_turtle));  // Second row
             arena.spawn(Box::new(third_row_raft));  // Third row
