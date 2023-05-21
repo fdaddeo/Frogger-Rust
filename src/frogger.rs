@@ -1,5 +1,6 @@
 use std::any::Any;
 use std::cmp::{min, max};
+use std::ops::Add;
 
 use crate::actor::*;
 use crate::rand::*;
@@ -34,9 +35,7 @@ impl Actor for Vehicle
 
     fn pos(&self) -> Pt { self.pos }
     fn size(&self) -> Pt { self.size }
-    fn alive(&self) -> bool { true }
-    fn as_any(&self) -> &dyn Any { self }
-    
+
     fn sprite(&self) -> Option<Pt> 
     { 
         if self.aspect == 0  // Yellow Vehicle Sprite
@@ -73,6 +72,9 @@ impl Actor for Vehicle
             }
         }
     }
+
+    fn alive(&self) -> bool { true }
+    fn as_any(&self) -> &dyn Any { self }
 }
 
 pub struct Raft 
@@ -103,9 +105,95 @@ impl Actor for Raft
 
     fn pos(&self) -> Pt { self.pos }
     fn size(&self) -> Pt { self.size }
+    fn sprite(&self) -> Option<Pt> { Some(pt(192, 102)) }
+    fn alive(&self) -> bool { true }
+    fn as_any(&self) -> &dyn Any { self }    
+}
+
+pub struct Turtle
+{
+    pos: Pt,
+    sprite: Pt,
+    size: Pt,
+    speed: i32,
+    immersed: bool,
+    counter: i32
+}
+impl Turtle
+{
+    pub fn new(pos: Pt, speed: i32) -> Turtle
+    {
+        Turtle { pos: pos, sprite: pt(194, 134), size: pt(26, 18), speed: speed, immersed: false, counter: 0 }
+    }
+}
+impl Actor for Turtle 
+{
+    fn act(&mut self, arena: &mut ArenaStatus) 
+    { 
+        let scr = arena.size();
+
+        self.pos.x = self.pos.x + self.speed;
+        self.counter = if randint(0, 1000) == 0 { 20 } else { self.counter };  // Prob 1:1000 to begin immersion
+
+        if self.counter < 10  // Swim right
+        {
+            self.sprite = pt(224, 132);
+            self.size = pt(30, 22);
+            self.immersed = false;
+            self.counter += 1;
+        }
+        else if self.counter < 20  // Swim left
+        {
+            self.sprite = pt(256, 132);
+            self.size = pt(30, 22);
+            self.immersed = false;
+            self.counter = (self.counter + 1) % 20; 
+        }
+        else if self.counter < 50  // Immersion 1
+        { 
+            self.sprite = pt(194, 134);
+            self.size = pt(26, 18);
+            self.immersed = false;
+            self.counter += 1;
+        }
+        else if self.counter < 70  // Immersion 2
+        {
+            self.sprite = pt(198, 164);
+            self.size = pt(20, 20);
+            self.immersed = true;
+            self.counter += 1;
+        }
+        else if self.counter < 130  // Stay immersed
+        {
+            self.sprite = pt(226, 162);
+            self.size = pt(28, 26);
+            self.immersed = true;
+            self.counter += 1;
+        }
+        else if self.counter < 150  // End immersion: surface 1
+        {
+            self.sprite = pt(198, 164);
+            self.size = pt(20, 20);
+            self.immersed = true;
+            self.counter += 1;
+        }
+        else if self.counter < 170  // End immersion: surface 2
+        { 
+            self.sprite = pt(194, 134);
+            self.size = pt(26, 18);
+            self.immersed = false;
+            self.counter = (self.counter + 1) % 170;
+        }
+
+        self.pos.x = if self.pos.x > scr.x + 96 && self.speed > 0 { - 96 } else { self.pos.x };
+        self.pos.x = if self.pos.x < - 96 && self.speed < 0 { scr.x } else { self.pos.x };
+    }
+
+    fn pos(&self) -> Pt { self.pos }
+    fn size(&self) -> Pt { self.size }
+    fn sprite(&self) -> Option<Pt> { Some(self.sprite) }
     fn alive(&self) -> bool { true }
     fn as_any(&self) -> &dyn Any { self }
-    fn sprite(&self) -> Option<Pt> { Some(pt(192, 102)) }
 }
 
 pub struct Water
@@ -125,9 +213,9 @@ impl Actor for Water
     fn act(&mut self, _arena: &mut ArenaStatus) { }
     fn pos(&self) -> Pt { self.pos }
     fn size(&self) -> Pt { self.size }
+    fn sprite(&self) -> Option<Pt> { None }
     fn alive(&self) -> bool { true }
     fn as_any(&self) -> &dyn Any { self }
-    fn sprite(&self) -> Option<Pt> { None }
 }
 
 pub struct Frog
@@ -153,10 +241,7 @@ impl Frog
         let starting_sprite = pt(68, 6);
         let mut wins: Vec<bool> = vec![];
 
-        for _ in 0..5
-        {
-            wins.push(false);
-        }
+        for _ in 0..5 { wins.push(false); }
 
         Frog { pos: pos,
                starting_pos: pos,
@@ -207,17 +292,30 @@ impl Actor for Frog
         {
             for other in arena.collisions()
             {
-                if let Some(_) = other.as_any().downcast_ref::<Vehicle>()  {
+                if let Some(_) = other.as_any().downcast_ref::<Vehicle>()
+                {
                     self.lose_life();
                 }
-
-                if let Some(_) = other.as_any().downcast_ref::<Water>() {
+                else if let Some(_) = other.as_any().downcast_ref::<Water>() 
+                {
                     self.in_water = true;
                 }
-
-                if let Some(raft) = other.as_any().downcast_ref::<Raft>() {
+                else if let Some(raft) = other.as_any().downcast_ref::<Raft>() 
+                {
                     self.in_water = false;
                     self.step.x = raft.speed;
+                }
+                else if let Some(turtle) = other.as_any().downcast_ref::<Turtle>()
+                {
+                    if turtle.immersed
+                    { 
+                        self.lose_life();
+                    }
+                    else
+                    { 
+                        self.in_water = false;
+                        self.step.x = turtle.speed; 
+                    }
                 }
             }
 
@@ -295,14 +393,15 @@ impl Actor for Frog
 
     fn pos(&self) -> Pt { self.pos }
     fn size(&self) -> Pt { self.size }
-    fn alive(&self) -> bool { self.lives > 0 }
-    fn as_any(&self) -> &dyn Any { self }
-    
+
     fn sprite(&self) -> Option<Pt> 
     { 
         if self.blinking > 0 && (self.blinking / 2) % 2 == 0 { None }
         else { Some(self.sprite) }
     }
+
+    fn alive(&self) -> bool { self.lives > 0 }
+    fn as_any(&self) -> &dyn Any { self }
 }
 
 pub struct FroggerGame 
@@ -329,11 +428,25 @@ impl FroggerGame
 
         for i in 0..n_raft_per_row
         {
-            arena.spawn(Box::new(Raft::new(pt(i * 200 + randint(50, 200), 87), 2)));  // First row
-            arena.spawn(Box::new(Raft::new(pt(i * 200 + randint(50, 200), 119), -2)));  // Second row
-            arena.spawn(Box::new(Raft::new(pt(i * 200 + randint(50, 200), 151), 2)));  // Third row
-            arena.spawn(Box::new(Raft::new(pt(i * 200 + randint(50, 200), 183), -2)));  // Fourth row
-            arena.spawn(Box::new(Raft::new(pt(i * 200 + randint(50, 200), 215), 2)));  // Fifth row
+            let first_row_raft = Raft::new(pt(i * 200 + randint(0, 150), 87), 2);
+            let second_row_raft = Raft::new(pt(i * 200 + randint(0, 150), 119), -2);
+            let third_row_raft = Raft::new(pt(i * 200 + randint(0, 150), 151), 2);
+            let fourth_row_raft = Raft::new(pt(i * 200 + randint(0, 150), 183), -2);            
+            let fifth_row_raft = Raft::new(pt(i * 200 + randint(0, 150), 215), 2);
+
+            // compute the turtle offset w.r.t. the prior raft.
+            let turtle_offset = pt(second_row_raft.size.x + 50, 0);
+
+            let second_row_turtle = Turtle::new(second_row_raft.pos.add(turtle_offset), -2);
+            let fourth_row_turtle = Turtle::new(fourth_row_raft.pos.add(turtle_offset), -2);
+
+            arena.spawn(Box::new(first_row_raft));  // First row
+            arena.spawn(Box::new(second_row_raft));  // Second row
+            arena.spawn(Box::new(second_row_turtle));  // Second row
+            arena.spawn(Box::new(third_row_raft));  // Third row
+            arena.spawn(Box::new(fourth_row_raft));  // Fourth row
+            arena.spawn(Box::new(fourth_row_turtle));  // Second row
+            arena.spawn(Box::new(fifth_row_raft));  // Fifth row
         }
 
         arena.spawn(Box::new(Frog::new(pt(308, 440))));
