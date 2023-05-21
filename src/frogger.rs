@@ -8,7 +8,7 @@ use crate::rand::*;
 pub struct Vehicle 
 {
     pos: Pt,
-    aspect: i32,
+    sprite: Pt,
     size: Pt,
     speed: i32
 }
@@ -19,7 +19,14 @@ impl Vehicle
         let aspect = randint(0, 2);
         let size = if aspect !=2 { pt(32, 26) } else { pt(62, 24) };
 
-        Vehicle { pos: pos, aspect: aspect, size: size, speed: speed }
+        let sprite = if aspect == 0 && speed >= 0 { pt(192, 4) }        // Yellow vehicle sprite
+                         else if aspect == 0 && speed < 0 { pt(192, 36) }   // Yellow vehicle sprite   
+                         else if aspect == 1 && speed >= 0 { pt(224, 4) }   // White vehicle sprite
+                         else if aspect == 1 && speed < 0 { pt(224, 36) }   // White vehicle sprite
+                         else if aspect == 2 && speed >= 0 { pt(258, 68) }  // Camion sprite
+                         else { pt(192, 68) };                              // Camion sprite
+
+        Vehicle { pos: pos, sprite: sprite, size: size, speed: speed }
     }
 }
 impl Actor for Vehicle 
@@ -35,44 +42,7 @@ impl Actor for Vehicle
 
     fn pos(&self) -> Pt { self.pos }
     fn size(&self) -> Pt { self.size }
-
-    fn sprite(&self) -> Option<Pt> 
-    { 
-        if self.aspect == 0  // Yellow Vehicle Sprite
-        {
-            if self.speed >= 0 
-            {
-                Some(pt(192, 4))
-            }
-            else 
-            {
-                Some(pt(192, 36))
-            }
-        }
-        else if self.aspect == 1  // White Vehicle Sprite
-        {
-            if self.speed >= 0 
-            {
-                Some(pt(224, 4))
-            }
-            else 
-            {
-                Some(pt(224, 36))
-            }
-        }
-        else // Camion Sprite
-        {
-            if self.speed >= 0 
-            {
-                Some(pt(258, 68))
-            }
-            else 
-            {
-                Some(pt(192, 68))
-            }
-        }
-    }
-
+    fn sprite(&self) -> Option<Pt> { Some(self.sprite) } 
     fn alive(&self) -> bool { true }
     fn as_any(&self) -> &dyn Any { self }
 }
@@ -489,6 +459,7 @@ impl FroggerGame
                 break;
             }
         }
+
         lives
     }
 
