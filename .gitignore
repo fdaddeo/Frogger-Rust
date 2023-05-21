@@ -12,3 +12,12 @@ Cargo.lock
 
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
+
+# VSCode folder
+.vscode/
+
+# Mac files
+.DS_STORE
+
+# Python folder
+__pycache__/
