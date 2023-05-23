@@ -121,15 +121,15 @@ impl Actor for Turtle
         }
         else if self.counter < 50  // Immersion 1
         { 
-            self.sprite = pt(194, 134);
-            self.size = pt(26, 18);
+            self.sprite = pt(194, 132);
+            self.size = pt(26, 22);
             self.immersed = false;
             self.counter += 1;
         }
         else if self.counter < 70  // Immersion 2
         {
-            self.sprite = pt(198, 164);
-            self.size = pt(20, 20);
+            self.sprite = pt(198, 163);
+            self.size = pt(20, 22);
             self.immersed = true;
             self.counter += 1;
         }
@@ -142,15 +142,15 @@ impl Actor for Turtle
         }
         else if self.counter < 150  // End immersion: surface 1
         {
-            self.sprite = pt(198, 164);
-            self.size = pt(20, 20);
+            self.sprite = pt(198, 163);
+            self.size = pt(20, 22);
             self.immersed = true;
             self.counter += 1;
         }
         else if self.counter < 170  // End immersion: surface 2
         { 
-            self.sprite = pt(194, 134);
-            self.size = pt(26, 18);
+            self.sprite = pt(194, 132);
+            self.size = pt(26, 22);
             self.immersed = false;
             self.counter = (self.counter + 1) % 170;
         }
@@ -492,29 +492,42 @@ impl FroggerGame
 
         for i in 0..n_raft_per_row
         {
-            let first_row_raft = Raft::new(pt(i * 200 + randint(0, 150), 87), 2);
-            let second_row_raft = Raft::new(pt(i * 200 + randint(0, 150), 119), -2);
-            let third_row_raft = Raft::new(pt(i * 200 + randint(0, 150), 151), 2);
-            let fourth_row_raft = Raft::new(pt(i * 200 + randint(0, 150), 183), -2);            
-            let fifth_row_raft = Raft::new(pt(i * 200 + randint(0, 150), 215), 2);
+            // First row
+            let first_row_raft = Raft::new(pt(i * 400 + randint(0, 150), 87), 4);
+            let crocodile_offset = pt(first_row_raft.size.x + 100, 10); // compute the crocodile offsets w.r.t. the relative prior raft.
+            let first_row_crocodile = Crocodile::new(first_row_raft.pos.sub(crocodile_offset), 4);
 
-            // compute the turtle and crocodile offsets w.r.t. the relative prior raft.
-            let turtle_offset = pt(second_row_raft.size.x + 50, 0);
-            let crocodile_offset = pt(fifth_row_raft.size.x + 50, 10);
+            // Second row
+            let second_row_turtle_first = Turtle::new(pt(i * 400 + randint(0, 150), 119), -3);
+            let second_row_turtle_second = Turtle::new(second_row_turtle_first.pos.add(pt(second_row_turtle_first.size.x + 8, 0)), -3);
+            let second_row_turtle_third = Turtle::new(second_row_turtle_second.pos.add(pt(second_row_turtle_second.size.x + 8, 0)), -3);
+            
+            // Third row
+            let third_row_raft = Raft::new(pt(i * 300 + randint(0, 150), 151), 3);
 
-            let second_row_turtle = Turtle::new(second_row_raft.pos.add(turtle_offset), -2);
-            let fourth_row_turtle = Turtle::new(fourth_row_raft.pos.add(turtle_offset), -2);
+            // Fourth row
+            let fourth_row_turtle_first = Turtle::new(pt(i * 300 + randint(0, 150), 183), -2);
+            let fourth_row_turtle_second = Turtle::new(fourth_row_turtle_first.pos.add(pt(fourth_row_turtle_first.size.x + 8, 0)), -2);
+            let fourth_row_turtle_third = Turtle::new(fourth_row_turtle_second.pos.add(pt(fourth_row_turtle_second.size.x + 8, 0)), -2); 
 
-            let first_row_crocodile = Crocodile::new(first_row_raft.pos.sub(crocodile_offset), 2);
+            // Fifth row
+            let fifth_row_raft = Raft::new(pt(i * 500 + randint(0, 150), 215), 2);
 
-            arena.spawn(Box::new(first_row_raft));  // First row
-            arena.spawn(Box::new(first_row_crocodile)); // First row
-            arena.spawn(Box::new(second_row_raft));  // Second row
-            arena.spawn(Box::new(second_row_turtle));  // Second row
-            arena.spawn(Box::new(third_row_raft));  // Third row
-            arena.spawn(Box::new(fourth_row_raft));  // Fourth row
-            arena.spawn(Box::new(fourth_row_turtle));  // Second row
-            arena.spawn(Box::new(fifth_row_raft));  // Fifth row
+            // First row
+            arena.spawn(Box::new(first_row_raft));
+            arena.spawn(Box::new(first_row_crocodile));
+            // Second row
+            arena.spawn(Box::new(second_row_turtle_first));
+            arena.spawn(Box::new(second_row_turtle_second));
+            arena.spawn(Box::new(second_row_turtle_third));
+            // Third row
+            arena.spawn(Box::new(third_row_raft));
+            // Fourth row
+            arena.spawn(Box::new(fourth_row_turtle_first));
+            arena.spawn(Box::new(fourth_row_turtle_second));
+            arena.spawn(Box::new(fourth_row_turtle_third));
+            // Fifth row
+            arena.spawn(Box::new(fifth_row_raft));  
         }
 
         arena.spawn(Box::new(Frog::new(pt(308, 440))));

@@ -57,6 +57,7 @@ impl FroggerGui
         }
 
         let txt = format!("Lives: {} Time: {}", self.game.remaining_lives(), self.game.playing_time());
+        g2d::set_color(255, 0, 0);
         g2d::draw_text(txt, pt2d::pt(0, 0), 24);
 
         if self.game.game_over() 
