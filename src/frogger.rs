@@ -334,7 +334,7 @@ impl Actor for Frog
                 {
                     if turtle.immersed
                     { 
-                        self.lose_life();
+                        self.in_water = true;
                     }
                     else
                     { 
