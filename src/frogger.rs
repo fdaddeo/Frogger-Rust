@@ -287,6 +287,7 @@ impl Frog
         self.pos = self.starting_pos;
         self.size = self.starting_size;
         self.sprite = self.starting_sprite;
+        self.lives += 1;
     }
 
     fn lose_life(&mut self)
